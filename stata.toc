@@ -1,0 +1,12 @@
+v 1.0
+
+p importbloom: Package to import some Bloomberg data exported via Excel.
+
+d Version 1.0 (November 28, 2022)
+d
+d Nicola Tommasi, C.I.D.E. University of Verona
+
+d
+d For a brief description of importbloom, type ^net describe importbloom^
+d To install importbloom program files, type type ^net install importbloom^
+d

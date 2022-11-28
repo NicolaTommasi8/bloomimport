@@ -1,0 +1,16 @@
+v 1.0
+d importbloom. Package to import some Bloomberg data exported via Excel.
+d Program by Nicola Tommasi (nicola.tommasi@univr.it)
+d
+d Distribution-Date: 20221128
+
+
+* I can also insert comments; these will not be displayed.
+* f lines name the files that comprise your package:
+
+f importbloom.ado
+f importbloom.sthlp
+
+f importbloom.pdf
+
+* F serve per includere do-file in ado's PLUS
