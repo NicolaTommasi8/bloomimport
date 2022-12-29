@@ -2,6 +2,7 @@
 Package to import some Bloomberg data exported via Excel
 
 Example:
+
     bloomimport using "data/testXbloomimport.xlsx", cellrange(A4) sheet("daily") datastart(B) nvar(6) lasttick(RB) clear
     
     summ
