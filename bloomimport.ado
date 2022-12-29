@@ -3,7 +3,7 @@
 *! version 0.5   Nicola Tommasi  17nov2022
 
 program bloomimport
-version 15
+version 17
 **set tracedepth 1
 **only if version >= 17
 **which name_ado_file
