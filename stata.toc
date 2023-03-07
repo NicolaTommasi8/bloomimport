@@ -1,4 +1,4 @@
-v 1.0
+v 1.1
 
 p bloomimport: Package to import some Bloomberg data exported via Excel.
 
