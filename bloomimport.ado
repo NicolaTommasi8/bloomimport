@@ -1,3 +1,5 @@
+*! version 1.1  Nicola Tommasi  07mar2023
+*   -prevent xframeappend error "shared variables in frames being combined must be both numeric or both string"
 *! version 1.0b  Nicola Tommasi  29nov2022
 *   -version 17 use frames, 15 & 16 tempfile
 *! version 0.5   Nicola Tommasi  17nov2022
@@ -7,6 +9,8 @@ version 17
 **set tracedepth 1
 **only if version >= 17
 **which name_ado_file
+
+** take a look at fframeappend: option force append string to numeric or numeric to string without error
 
 syntax using/  , cellrange(string) datastart(string) nvar(integer) lasttick(string)   ///
        [sheet(string) clear  from(string) to(string) ///
@@ -27,7 +31,7 @@ if `version'>=17 {
   }
 }
 
-qui import excel using "`using'", sheet("`sheet'") cellrange(`cellrange') `clear'
+qui import excel using "`using'", sheet("`sheet'") cellrange(`cellrange') `clear' allstring
 
 
 /***********
@@ -70,14 +74,19 @@ while `STA'<= `LAST'  {
       forvalues c=`STA'/`END' {
 	    mata: st_local("clnm", numtobase26(`c'))
 	    local token =`clnm' in 2
-	    rename `clnm' `token'
+      capture confirm variable `token'
+      if _rc rename `clnm' `token'
+      else {
+        local token `token'2
+        rename `clnm' `token'
+      }
       qui replace `token'="" if strmatch(`token',"*N/A*")
       local VtoDESTR  "`VtoDESTR' `token'"
     }
 
     qui gen ticker="`Vname'"
     qui drop in 1/2
-    qui destring `VtoDESTR', replace
+    **qui destring `VtoDESTR', replace
     rename `firstrow' date
 
     if `version'>=17 {
@@ -115,8 +124,13 @@ while `STA'<= `LAST'  {
 if `version'>=17 {
   frame change `fr_fusion'
   frame copy `fr_fusion' default, replace
+  frame change default
+  qui destring, replace
 }
-else use  `buildingDB', clear
+else {
+  use  `buildingDB', clear
+  qui destring, replace
+}
 
 end
 
