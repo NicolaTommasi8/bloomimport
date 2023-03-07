@@ -2,6 +2,7 @@ v 1.0
 
 p bloomimport: Package to import some Bloomberg data exported via Excel.
 
+d Version 1.1 (March 07, 2023)
 d Version 1.0 (November 28, 2022)
 d
 d Nicola Tommasi, C.I.D.E. University of Verona
