@@ -1,3 +1,5 @@
+*! version 1.2  Nicola Tommasi  09mar2024
+*   -datastart() optional. If not specified, datastart=cellrange+1
 *! version 1.1  Nicola Tommasi  07mar2023
 *   -prevent xframeappend error "shared variables in frames being combined must be both numeric or both string"
 *! version 1.0b  Nicola Tommasi  29nov2022
@@ -12,8 +14,8 @@ version 17
 
 ** take a look at fframeappend: option force append string to numeric or numeric to string without error
 
-syntax using/  , cellrange(string) datastart(string) nvar(integer) lasttick(string)   ///
-       [sheet(string) clear  from(string) to(string) ///
+syntax using/  , cellrange(string) nvar(integer) lasttick(string)   ///
+       [sheet(string) datastart(string) clear  from(string) to(string) ///
         debug /*undocumented*/ ]
 
 tempname temp fr_fusion ABS
@@ -43,12 +45,19 @@ type in Stata:
 AA
 *********/
 
-if regexm("`cellrange'","(^[A-Z]*)") local firstrow=  regexs(1)
+if regexm("`cellrange'","(^[A-Z]*)") local firstrow = regexs(1)
+if "`datastart'" != "" {
+  if regexm("`datastart'","(^[A-Z]*)") local datastartS=  regexs(1)
+  mata: `ABS' = "`datastartS'"
+  mata: st_numscalar("datastartN", numofbase26(`ABS'))
+  local  datastartN = datastartN
+}
+else {
+  mata: `ABS' = "`firstrow'"
+  mata: st_numscalar("datastartN", numofbase26(`ABS'))
+  local  datastartN = datastartN+1
+}
 
-if regexm("`datastart'","(^[A-Z]*)") local datastartS=  regexs(1)
-mata: `ABS' = "`datastartS'"
-mata: st_numscalar("datastartN", numofbase26(`ABS'))
-local  datastartN = datastartN
 
 if regexm("`lasttick'","(^[A-Z]*)") local lasttickS=  regexs(1)
 mata: `ABS' = "`lasttickS'"
