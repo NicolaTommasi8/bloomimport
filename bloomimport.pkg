@@ -1,8 +1,8 @@
-v 1.1
+v 1.2
 d bloomimport. Package to import some Bloomberg data exported via Excel.
 d Program by Nicola Tommasi (nicola.tommasi@univr.it)
 d
-d Distribution-Date: 20230307
+d Distribution-Date: 20240309
 
 
 * I can also insert comments; these will not be displayed.
