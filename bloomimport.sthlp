@@ -20,12 +20,12 @@
 {synoptline}
 {synopt :{opt sh:eet("sheetname")}} Excel worksheet to load (mandatory){p_end}
 {synopt :{opt cellra:nge([start][:end])}} Excel cell range to load (mandatory){p_end}
-{synopt :{opt nvar(#)}} Number of variables for each ticker (mandatory){p_end}
-{synopt :{opt lasttick(string)}} Excel column of last ticker (mandatory){p_end}
+{synopt :{opt export(string)}} Layout of data exported from Bloomberg{p_end}
+{synopt :{opt nvar(#)}} Number of variables for each ticker (mandatory if export(wide)){p_end}
+{synopt :{opt lasttick(string)}} Excel column of last ticker (mandatory if export(wide))){p_end}
 {synopt :{opt datastart(column)}} Excel cell where data start{p_end}
 {synopt :{opt from(varlist)}} data ticker to rename{p_end}
 {synopt :{opt to(varlist)}} new names for data ticker specified in {opt from(varlist)}{p_end}
-{synopt :{opt clear}} replace data in memory{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -40,15 +40,17 @@
 {title:Options for bloomimport}
 
 {phang}
+{cmd:sheet("}{it:sheetname}{cmd:")} imports the worksheet named
+{it:sheetname} in the workbook {it:excel_filename}.
+
+{phang}
 {opt "cellrange([start][:end])"} specifies a range of cells within
 the worksheet to load. {it:start} and {it:end} are specified using
 standard Excel cell notation, for example, {cmd:A1}, {cmd:BC2000}, and
 {cmd:C23}.
 
 {phang}
-{cmd:sheet("}{it:sheetname}{cmd:")} imports the worksheet named
-{it:sheetname} in the workbook.  The default is to import the first
-worksheet.
+{opt "export(string)"} specifies the layout of data exported from Bloomberg. Layout could be wide or long.
 
 {phang}
 {cmd:nvar(integer)} specifies the number of data item foreach ticker.

@@ -1,3 +1,5 @@
+*! version 1.4  Nicola Tommasi  09mar2024
+*   -export(wide|long)
 *! version 1.2  Nicola Tommasi  09mar2024
 *   -datastart() optional. If not specified, datastart=cellrange+1
 *! version 1.1  Nicola Tommasi  07mar2023
@@ -7,16 +9,15 @@
 *! version 0.5   Nicola Tommasi  17nov2022
 
 program bloomimport
-version 17
+version 15
 **set tracedepth 1
 **only if version >= 17
 **which name_ado_file
 
 ** take a look at fframeappend: option force append string to numeric or numeric to string without error
 
-syntax using/  , cellrange(string) nvar(integer) lasttick(string)   ///
-       [sheet(string) datastart(string) clear  from(string) to(string) ///
-        debug /*undocumented*/ ]
+syntax  using/, sheet(string) cellrange(string) [export(string) nvar(integer 0) lasttick(string) datastart(string) from(string) to(string) debug ]
+
 
 tempname temp fr_fusion ABS
 tempfile buildingDB
@@ -33,145 +34,187 @@ if `version'>=17 {
   }
 }
 
-qui import excel using "`using'", sheet("`sheet'") cellrange(`cellrange') `clear' allstring
+if "`export'"=="" local export wide
+
+if "`export'"=="wide"{
+  qui import excel using "`using'", sheet("`sheet'") cellrange(`cellrange') clear allstring
+
+  /***********
+  numtobase26() is an undocumented Mata function
+   that converts column numbers to Excel's column letters. For example, if
+   you want to know what the 27th column will be called in Excel you can
+  type in Stata:
+  . mata : numtobase26(27)
+  AA
+  *********/
+
+  if regexm("`cellrange'","(^[A-Z]*)") local firstrow = regexs(1)
+  if "`datastart'" != "" {
+    if regexm("`datastart'","(^[A-Z]*)") local datastartS=  regexs(1)
+    mata: `ABS' = "`datastartS'"
+    mata: st_numscalar("datastartN", numofbase26(`ABS'))
+    local  datastartN = datastartN
+  }
+  else {
+    mata: `ABS' = "`firstrow'"
+    mata: st_numscalar("datastartN", numofbase26(`ABS'))
+    local  datastartN = datastartN+1
+  }
 
 
-/***********
-numtobase26() is an undocumented Mata function
- that converts column numbers to Excel's column letters. For example, if
- you want to know what the 27th column will be called in Excel you can
-type in Stata:
-. mata : numtobase26(27)
-AA
-*********/
+  if regexm("`lasttick'","(^[A-Z]*)") local lasttickS=  regexs(1)
+  mata: `ABS' = "`lasttickS'"
+  mata: st_numscalar("lasttickmata", numofbase26(`ABS'))
+  local lasttickmata = lasttickmata
 
-if regexm("`cellrange'","(^[A-Z]*)") local firstrow = regexs(1)
-if "`datastart'" != "" {
-  if regexm("`datastart'","(^[A-Z]*)") local datastartS=  regexs(1)
-  mata: `ABS' = "`datastartS'"
-  mata: st_numscalar("datastartN", numofbase26(`ABS'))
-  local  datastartN = datastartN
-}
-else {
-  mata: `ABS' = "`firstrow'"
-  mata: st_numscalar("datastartN", numofbase26(`ABS'))
-  local  datastartN = datastartN+1
-}
+  local sta = `datastartN' /*colonna da cui partono i dati, servono per mata */
+  local STA=`sta'
+  local LAST = `lasttickmata' /* è la colonna dove iniziano i dati dell'ultimo ticker --> numofbase26() */
 
 
-if regexm("`lasttick'","(^[A-Z]*)") local lasttickS=  regexs(1)
-mata: `ABS' = "`lasttickS'"
-mata: st_numscalar("lasttickmata", numofbase26(`ABS'))
-local lasttickmata = lasttickmata
+  while `STA'<= `LAST'  {
+    local END = `STA' + `nvar' - 1
 
-local sta = `datastartN' /*colonna da cui partono i dati, servono per mata */
-local STA=`sta'
-local LAST = `lasttickmata' /* è la colonna dove iniziano i dati dell'ultimo ticker --> numofbase26() */
+    mata: st_local("cellname", numtobase26(`STA'))
+    mata: st_local("cellfine", numtobase26(`STA'+`nvar'-1))
 
+    local Vname = `cellname' in 1
 
-while `STA'<= `LAST'  {
-  local END = `STA' + `nvar' - 1
-
-  mata: st_local("cellname", numtobase26(`STA'))
-  mata: st_local("cellfine", numtobase26(`STA'+`nvar'-1))
-
-  local Vname = `cellname' in 1
-
-  preserve
-    keep `firstrow' `cellname'-`cellfine'
-      local VtoDESTR = ""
-      forvalues c=`STA'/`END' {
-	    mata: st_local("clnm", numtobase26(`c'))
-	    local token =`clnm' in 2
-      capture confirm variable `token'
-      if _rc rename `clnm' `token'
-      else {
-        local token `token'2
-        rename `clnm' `token'
-      }
-      qui replace `token'="" if strmatch(`token',"*N/A*")
-      local VtoDESTR  "`VtoDESTR' `token'"
-    }
-
-    qui gen ticker="`Vname'"
-    qui drop in 1/2
-    **qui destring `VtoDESTR', replace
-    rename `firstrow' date
-
-    if `version'>=17 {
-      if `STA'==`sta' qui frame copy default `fr_fusion', replace
-      else {
-        qui frame copy default `temp'
-        if "`debug'"!=""{
-          di "temp"
-          summ
-          desc
-          fre ticker
+    preserve
+      keep `firstrow' `cellname'-`cellfine'
+        local VtoDESTR = ""
+        forvalues c=`STA'/`END' {
+  	    mata: st_local("clnm", numtobase26(`c'))
+  	    local token =`clnm' in 2
+        capture confirm variable `token'
+        if _rc rename `clnm' `token'
+        else {
+          local token `token'2
+          rename `clnm' `token'
         }
-        frame change `fr_fusion'
-        if "`debug'"!=""{
-          di "fr_fusion"
-          desc
-          summ
+        qui replace `token'="" if strmatch(`token',"*N/A*")
+        local VtoDESTR  "`VtoDESTR' `token'"
+      }
+
+      qui gen ticker="`Vname'"
+      qui drop in 1/2
+      **qui destring `VtoDESTR', replace
+      rename `firstrow' date
+
+      if `version'>=17 {
+        if `STA'==`sta' qui frame copy default `fr_fusion', replace
+        else {
+          qui frame copy default `temp'
+          if "`debug'"!=""{
+            di "temp"
+            summ
+            desc
+            fre ticker
+          }
+          frame change `fr_fusion'
+          if "`debug'"!=""{
+            di "fr_fusion"
+            desc
+            summ
+          }
+          xframeappend `temp', drop fast
+          frame change default
         }
-        xframeappend `temp', drop fast
-        frame change default
       }
-    }
-    else {
-      if `STA'==`sta' qui save `buildingDB', replace
       else {
-        append using `buildingDB', force
-        qui save `buildingDB', replace
+        if `STA'==`sta' qui save `buildingDB', replace
+        else {
+          append using `buildingDB', force
+          qui save `buildingDB', replace
+        }
       }
-    }
-  restore
+    restore
 
-  if `STA'<=`LAST' local STA = `STA' + `nvar'
+    if `STA'<=`LAST' local STA = `STA' + `nvar'
+  }
+
+  if `version'>=17 {
+    frame change `fr_fusion'
+    frame copy `fr_fusion' default, replace
+    frame change default
+    qui destring, replace
+  }
+  else {
+    use  `buildingDB', clear
+    qui destring, replace
+  }
 }
 
-if `version'>=17 {
-  frame change `fr_fusion'
-  frame copy `fr_fusion' default, replace
-  frame change default
-  qui destring, replace
-}
 else {
-  use  `buildingDB', clear
-  qui destring, replace
+  qui import excel using "`using'", sheet("`sheet'") cellrange(`cellrange') clear allstring firstrow case(upper)
+
+  if regexm("`cellrange'","(^[A-Z]*)") local firstrow = regexs(1)
+
+  rename `firstrow' ticker
+  label var ticker "Ticker"
+  qui carryforward ticker, replace
+  rename DATES field
+  label var field "Field"
+
+
+  qui ds, not(varl Ticker Field)
+  foreach V of varlist `r(varlist)' {
+    local vdesc : variable label `V'
+    local Y = substr("`vdesc'",-4,.)
+    rename `V' _`Y'
+    qui replace _`Y'="" if strmatch(_`Y',"#*")
+  }
+
+  if `version'>=18 {
+    qui reshape long _@, i(ticker field) j(year) favor(speed)
+    qui reshape wide _, i(ticker year) j(field) string favor(speed)
+  }
+  else {
+    qui reshape long _@, i(ticker field) j(year)
+    qui reshape wide _, i(ticker year) j(field) string
+  }
+
+  foreach V of varlist _* {
+    qui destring `V', replace
+  }
+  rename _* *
 }
+
+
+
 
 end
 
 
-/***
+/****
+William Matsuoka
 Putexcel Part II: numofbase26()
 http://www.wmatsuoka.com/stata/putexcel-part-ii-numofbase26
-***/
+****/
 mata
 real matrix numofbase26(string matrix base)
 {
-    real matrix output, pwr, b
-    real scalar i, j, k, l
+  real matrix output, pwr, b
+  real scalar i, j, k, l
 
-    base = strupper(base)
-    output = J(rows(base), cols(base), .)
+  base = strupper(base)
+  output = J(rows(base), cols(base), .)
 
-    for (i=1; i<=rows(base); i++) {
-        for (j=1; j<=cols(base); j++) {
-            if (strlen(base[i,j]) == 1) output[i,j] = ascii(base[i,j]) - 64
-            else {
-                l = strlen(base[i,j])
-                b = pwr = J(1, l, .)
-                for (k=1; k<=l; k++) {
-                    b[1,k] = ascii(substr(base[i,j], k, 1)) - 64
-                    pwr[1, k] = l - k
-                }
-                output[i,j] = rowsum(b :* (26:^pwr))
-            }
+  for (i=1; i<=rows(base); i++) {
+    for (j=1; j<=cols(base); j++) {
+      if (strlen(base[i,j]) == 1) output[i,j] = ascii(base[i,j]) - 64
+      else {
+        l = strlen(base[i,j])
+        b = pwr = J(1, l, .)
+        for (k=1; k<=l; k++) {
+          b[1,k] = ascii(substr(base[i,j], k, 1)) - 64
+          pwr[1, k] = l - k
         }
+        output[i,j] = rowsum(b :* (26:^pwr))
+      }
     }
-    return(output)
+  }
+  return(output)
 }
 end
 
