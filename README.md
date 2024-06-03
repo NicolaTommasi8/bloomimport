@@ -1,5 +1,5 @@
 # bloomimport
-Package to import some Bloomberg data exported via Excel
+Package to import Bloomberg data exported via Excel
 
 Example #1:
 
