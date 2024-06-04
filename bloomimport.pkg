@@ -1,5 +1,5 @@
 v 1.3
-d bloomimport. Package to import some Bloomberg data exported via Excel.
+d bloomimport. Package to import Bloomberg data exported via Excel.
 d Program by Nicola Tommasi (nicola.tommasi@univr.it)
 d
 d Distribution-Date: 20240603
