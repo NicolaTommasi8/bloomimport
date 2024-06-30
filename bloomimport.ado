@@ -1,3 +1,5 @@
+*! version 1.4.1  Nicola Tommasi  june 2024
+*   -minor bugs in export(long)
 *! version 1.4  Nicola Tommasi  09mar2024
 *   -export(wide|long)
 *! version 1.2  Nicola Tommasi  09mar2024
@@ -24,6 +26,15 @@ tempfile buildingDB
 capture frames reset `temp'
 capture frames reset `fr_fusion'
 
+
+capture which missings
+if _rc==111 {
+  di in yellow "missings not installed.... installing..."
+  ssc inst missings
+  di in yellow "missings has been correctly installed!"
+}
+
+
 local version `c(stata_version)'
 if `version'>=17 {
   capture which xframeappend
@@ -33,6 +44,9 @@ if `version'>=17 {
     di in yellow "xframeappend has been correctly installed!"
   }
 }
+
+
+
 
 if "`export'"=="" local export wide
 
@@ -147,6 +161,7 @@ if "`export'"=="wide"{
 
 else {
   qui import excel using "`using'", sheet("`sheet'") cellrange(`cellrange') clear allstring firstrow case(upper)
+  qui missings dropvars, force
 
   if regexm("`cellrange'","(^[A-Z]*)") local firstrow = regexs(1)
 
@@ -156,22 +171,22 @@ else {
   rename DATES field
   label var field "Field"
 
-
   qui ds, not(varl Ticker Field)
   foreach V of varlist `r(varlist)' {
     local vdesc : variable label `V'
-    local Y = substr("`vdesc'",-4,.)
-    rename `V' _`Y'
-    qui replace _`Y'="" if strmatch(_`Y',"#*")
+    local date = subinstr("`vdesc'","/","_",.)
+    local date = subinstr("`date'"," ","",.)
+    rename `V' _`date'
+    qui replace _`date'="" if strmatch(_`date',"#*")
   }
 
   if `version'>=18 {
-    qui reshape long _@, i(ticker field) j(year) favor(speed)
-    qui reshape wide _, i(ticker year) j(field) string favor(speed)
+    qui reshape long _@, i(ticker field) j(date) favor(speed) string
+    qui reshape wide _, i(ticker date) j(field) string favor(speed)
   }
   else {
-    qui reshape long _@, i(ticker field) j(year)
-    qui reshape wide _, i(ticker year) j(field) string
+    qui reshape long _@, i(ticker field) j(date) string
+    qui reshape wide _, i(ticker date) j(field) string
   }
 
   foreach V of varlist _* {
