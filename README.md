@@ -77,30 +77,35 @@ Example #2:
     TOT_LOAN_T~T |      1,557    87.59001    17.23081    15.3967   219.9147
 
 
-Example #3: 
-    . bloomimport using "data/File per Nicola 260824.xlsx", cellrange(A4) sheet("multi_long") dates(multi) export(long)
-    . summ
+Example #3:
 
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-      ticker |          0
-        date |          0
-DBETA_RAW_~E |      1,091    1.065243    .6020008    -5.8442     2.3763
-DBS_TOT_AS~T |        986    86266.49    107075.7   6613.089     406794
-DENTERPRIS~E |        978    301271.1    592509.5   10558.49    3154375
--------------+---------------------------------------------------------
-  DESG_SCORE |        933     4.21433    1.398658        1.4       7.33
-DHISTORICA~P |        978    305557.5    615701.9   5154.987    3206112
-DPX_TO_BOO~O |        992    16.32091     19.4739       .875    82.2959
-DRETURN_CO~Y |        966    47.19229    43.88256    -9.1584   197.4311
-DSA_ESG_RI~R |        399    19.90053    6.138061       8.65      29.93
--------------+---------------------------------------------------------
-DTOT_COMMO~Y |        986    21838.51    31409.93      -8940     140199
-CUMULATIVE~S |      1,093    130.9515    161.4119    -74.054   781.5646
-DAY_TO_DAY~S |      1,092    1.323135    8.210708   -36.0105    30.1131
+    bloomimport using "data/File per Nicola 260824.xlsx", cellrange(A4) sheet("multi_long") dates(multi) export(long)
+    summ
 
+        Variable |        Obs        Mean    Std. dev.       Min        Max
+    -------------+---------------------------------------------------------
+          ticker |          0
+            date |          0
+    DBETA_RAW_~E |      1,091    1.065243    .6020008    -5.8442     2.3763
+    DBS_TOT_AS~T |        986    86266.49    107075.7   6613.089     406794
+    DENTERPRIS~E |        978    301271.1    592509.5   10558.49    3154375
+    -------------+---------------------------------------------------------
+      DESG_SCORE |        933     4.21433    1.398658        1.4       7.33
+    DHISTORICA~P |        978    305557.5    615701.9   5154.987    3206112
+    DPX_TO_BOO~O |        992    16.32091     19.4739       .875    82.2959
+    DRETURN_CO~Y |        966    47.19229    43.88256    -9.1584   197.4311
+    DSA_ESG_RI~R |        399    19.90053    6.138061       8.65      29.93
+    -------------+---------------------------------------------------------
+    DTOT_COMMO~Y |        986    21838.51    31409.93      -8940     140199
+    CUMULATIVE~S |      1,093    130.9515    161.4119    -74.054   781.5646
+    DAY_TO_DAY~S |      1,092    1.323135    8.210708   -36.0105    30.1131
 
-
-
-
-
+    gen tmp=date(date,"DMY")
+    order tmp, after(date)
+    format tmp %td
+    drop date
+    rename tmp date
+    gen monthly= mofd(date)
+    format monthly %tm
+    order monthly, after(date)
+    sort ticker date
