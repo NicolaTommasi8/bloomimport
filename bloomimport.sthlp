@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.2  09mar2024}{...}
+{**! version 1.5  14sep2024}{...}
 {p2colset 1 21 18 2}{...}
 {p2col:{bf: bloomimport} {hline 2}}Import Bloomberg data{p_end}
 {p2colreset}{...}
@@ -21,9 +21,9 @@
 {synopt :{opt sh:eet("sheetname")}} Excel worksheet to load (mandatory){p_end}
 {synopt :{opt cellra:nge([start][:end])}} Excel cell range to load (mandatory){p_end}
 {synopt :{opt export(string)}} Layout of data exported from Bloomberg{p_end}
+{synopt :{opt dates(string)}} One date for all tickers or one date for each ticker{p_end}
 {synopt :{opt nvar(#)}} Number of variables for each ticker (mandatory if export(wide)){p_end}
 {synopt :{opt lasttick(string)}} Excel column of last ticker (mandatory if export(wide))){p_end}
-{synopt :{opt datastart(column)}} Excel cell where data start{p_end}
 {synopt :{opt from(varlist)}} data ticker to rename{p_end}
 {synopt :{opt to(varlist)}} new names for data ticker specified in {opt from(varlist)}{p_end}
 {synoptline}
@@ -50,27 +50,23 @@ standard Excel cell notation, for example, {cmd:A1}, {cmd:BC2000}, and
 {cmd:C23}.
 
 {phang}
-{opt "export(string)"} specifies the layout of data exported from Bloomberg. Layout could be wide or long.
+{opt "export(string)"} specifies the layout of data exported from Bloomberg. Layout could be wide (default) or long.
 
 {phang}
-{cmd:nvar(integer)} specifies the number of data item foreach ticker.
+{opt "dates(string)"} specifies if the date is unique for all tickers or if there is a date for each ticker. Dates could be single (default) or multi.
 
 {phang}
-{cmd:lastick(column)} specifies the column of the last ticker.
+{opt "nvar(integer)"} specifies the number of data item foreach ticker.
 
 {phang}
-{cmd:datastart(column)} specifies the first column of data in the Excel worksheet.
-If not specified, next column with respect to cellrange()
+{opt "lastick(string)"} specifies the column of the last ticker.
 
 {phang}
-{cmd:from(varlist)} list of fields that need to be renamed, typically because the name is too long or
-because the name would be incompatible with Stata's variable naming rules.
+{opt "from(varlist)"} list of fields that need to be renamed, typically because the name is too long or
+because the name would be incompatible with Stata's variable naming rules. Under development, coming soon.
 
 {phang}
-{cmd:to(varlist)} list of new names to assign to the fields specified in from(varlist). (Under development, coming soon)
-
-{phang}
-{cmd:clear} clear data in memory before loading data from the Excel workbook. (Under development, coming soon)
+{opt "to(varlist)"} list of new names to assign to the fields specified in from(varlist). Under development, coming soon.
 
 {pstd}
 
