@@ -1,3 +1,5 @@
+*! version 1.5.1  Nicola Tommasi  01oct2024
+*   -bugs fix
 *! version 1.5  Nicola Tommasi  14sep2024
 *   -dates(single|multi)
 *   -minor changes

@@ -1,5 +1,5 @@
 {smcl}
-{**! version 1.5  14sep2024}{...}
+{**! version 1.5.1  01oct2024}{...}
 {p2colset 1 21 18 2}{...}
 {p2col:{bf: bloomimport} {hline 2}}Import Bloomberg data{p_end}
 {p2colreset}{...}
