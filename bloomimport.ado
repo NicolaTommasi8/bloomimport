@@ -257,6 +257,8 @@ else { /*"`export'"=="long"*/
         qui ds, not(varl Ticker Field tempvar)
         foreach V of varlist `r(varlist)' {
           local vname = `V' in 1
+          local vname = strtrim("`vname'")
+          local vname = subinstr("`vname'","/","",.)
           rename `V' D`vname'
         }
         qui drop in 1
@@ -265,6 +267,7 @@ else { /*"`export'"=="long"*/
         qui gen `fieldlen'=strlen(field)
         qui summ `fieldlen'
         if `r(max)'>=32 local flag=1
+        else local flag=0
         if `flag'==1 {
           qui levelsof field if `fieldlen'>=32, local(lista)
           local cnt=1
@@ -312,20 +315,25 @@ else { /*"`export'"=="long"*/
         }
       restore
     }
-
-      if `version'>=17 {
+    **to avoid dates destring
+    if `version'>=17 {
       frame change `fr_fusion'
       frame copy `fr_fusion' default, replace
       frame change default
-      qui destring, replace
+      qui ds
+      local VARLIST = "`r(varlist)'"
+      local VARLIST = subinstr("`VARLIST'"," date ", " ",1)
+      qui destring `VARLIST', replace
     }
     else {
       use  `buildingDB', clear
-      qui destring, replace
+      qui ds
+      local VARLIST = "`r(varlist)'"
+      local VARLIST = subinstr("`VARLIST'"," date ", " ",1)
+      qui destring `VARLIST', replace
     }
   }
 }
-
 
 end
 
