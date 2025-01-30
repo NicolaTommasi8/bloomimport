@@ -1,3 +1,6 @@
+*! version 1.5.2  Nicola Tommasi  30jan2025
+*   -check missings package installation
+*   -bugs fix in export(long)
 *! version 1.5.1  Nicola Tommasi  01oct2024
 *   -bugs fix
 *! version 1.5  Nicola Tommasi  14sep2024
@@ -27,6 +30,14 @@ capture frames reset `temp'
 capture frames reset `fr_fusion'
 
 local version `c(stata_version)'
+
+capture which missings
+if _rc==111 {
+  di in yellow "missings not installed.... installing..."
+  ssc inst missings
+  di in yellow "missings has been correctly installed!"
+}
+
 if `version'>=17 {
   capture which xframeappend
   if _rc==111 {
@@ -286,6 +297,12 @@ else { /*"`export'"=="long"*/
           forvalues i=1/`cnt' {
             rename Dtmp`i' `name`i''
           }
+        }
+
+        foreach V of varlist D* {
+          local VNAME : variable label `V'
+          local VNAME : word 1 of `VNAME'
+          rename `V' `VNAME'
         }
 
         if `version'>=17 {
