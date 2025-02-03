@@ -1,5 +1,5 @@
 {smcl}
-{**! version 1.5.2  30jan2025}{...}
+{**! version 1.5.3  02feb2025}{...}
 {p2colset 1 21 18 2}{...}
 {p2col:{bf: bloomimport} {hline 2}}Import Bloomberg data{p_end}
 {p2colreset}{...}
@@ -92,15 +92,14 @@ because the name would be incompatible with Stata's variable naming rules. Under
 
 {marker remarks}{...}
 {title:Remarks}
-The command will automatically download and install the xframeappend package {helpb xframeappend}, if it is not already installed.
-See {net "describe xframeappend, from(http://fmwww.bc.edu/repec/bocode/x/)":ssc describe xframeappend}.
+The command will automatically download and install the fframeappend package {helpb fframeappend}, if it is not already installed.
+See {net "describe fframeappend, from(http://fmwww.bc.edu/repec/bocode/f/)":ssc describe fframeappend}.
+
+net install fframeappend, from(https://raw.githubusercontent.com/JuergenWiemers/fframeappend/master/src) replace
+
 
 {cmd:bloomimport} includes a piece of code written by William Matsuoka to convert Excel column letter to
 their corresponding column numbers. Find the article and code {browse "http://www.wmatsuoka.com/stata/putexcel-part-ii-numofbase26":here}.
-
-
-
-
 
 
 

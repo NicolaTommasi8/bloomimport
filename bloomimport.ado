@@ -1,6 +1,8 @@
+*! version 1.5.3  Nicola Tommasi  02feb2025
+*   -xframeappend replaced by fframeappend (please use version >= 1.1.2)
 *! version 1.5.2  Nicola Tommasi  30jan2025
 *   -check missings package installation
-*   -bugs fix in export(long)
+*   -bugs fix in export(long) (variable names)
 *! version 1.5.1  Nicola Tommasi  01oct2024
 *   -bugs fix
 *! version 1.5  Nicola Tommasi  14sep2024
@@ -39,11 +41,11 @@ if _rc==111 {
 }
 
 if `version'>=17 {
-  capture which xframeappend
+  capture which fframeappend
   if _rc==111 {
-    di in yellow "xframeappend not installed.... installing..."
-    ssc inst xframeappend
-    di in yellow "xframeappend has been correctly installed!"
+    di in yellow "fframeappend not installed.... installing..."
+    ssc inst fframeappend
+    di in yellow "fframeappend has been correctly installed!"
   }
 }
 
@@ -113,7 +115,8 @@ if "`export'"=="wide" {
               desc
               summ
             }
-            xframeappend `temp', drop fast
+            **xframeappend `temp', drop fast
+            fframeappend, using(`temp') drop force
             frame change default
           }
         }
@@ -173,7 +176,8 @@ if "`export'"=="wide" {
               desc
               summ
             }
-            xframeappend `temp', drop fast
+            **xframeappend `temp', drop fast
+            fframeappend, using(`temp') drop force
             frame change default
           }
         }
@@ -296,13 +300,14 @@ else { /*"`export'"=="long"*/
           local cnt `--cnt'
           forvalues i=1/`cnt' {
             rename Dtmp`i' `name`i''
+            label var `name`i'' "`name`i''" /*previene rename vars che iniziano con D nel ciclo sotto*/
           }
         }
 
         foreach V of varlist D* {
           local VNAME : variable label `V'
           local VNAME : word 1 of `VNAME'
-          rename `V' `VNAME'
+          qui rename `V' `VNAME'
         }
 
         if `version'>=17 {
@@ -321,7 +326,8 @@ else { /*"`export'"=="long"*/
               desc
               summ
             }
-            xframeappend `temp', drop fast
+            **xframeappend `temp', drop fast
+            fframeappend, using(`temp') drop force
             frame change default
           }
         }
